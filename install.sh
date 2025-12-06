@@ -30,11 +30,10 @@ chown -R "${username}:${username}" "/home/${username}"
 mkdir -p /usr/share/oh-my-zsh/themes/
 cp -r /usr/share/zsh-theme-powerlevel10k /usr/share/oh-my-zsh/themes/powerlevel10k
 sed -i -e 's|background=/usr/share/endeavouros/backgrounds/endeavouros-wallpaper.png|background=/usr/share/backgrounds/packarch/default.jpg|g' /etc/lightdm/slick-greeter.conf
-sudo -u "${username}" sed -i -e 's|color_scheme=nordic.conf|color_scheme=dark-colors.conf|g' /root/.config/geany/geany.conf
 sed -i -e 's|Exec=geany %F|Exec=geany -i %F|g' /usr/share/applications/geany.desktop
-sudo -u "${username}" xfce4-set-wallpaper /usr/share/backgrounds/packarch/default.jpg
+sudo -u "${username}" DISPLAY="${DISPLAY}" xfce4-set-wallpaper /usr/share/backgrounds/packarch/default.jpg
+sudo -u "${username}" DISPLAY="${DISPLAY}" xfconf-query --channel xsettings --property /Gtk/CursorThemeSize --set 24
 systemctl enable lightdm.service
-sudo -u "${username}" xfconf-query --channel xsettings --property /Gtk/CursorThemeSize --set 24
 
 ## Set zsh shell for root and user
 chsh -s $(which zsh) root
