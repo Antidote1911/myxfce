@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+<action>
+	<icon>open-terminal</icon>
+	<name>Ouvrir terminal ici</name>
+	<submenu></submenu>
+	<unique-id>1581593230771688-1</unique-id>
+	<command>xfce4-terminal</command>
+	<description>Open terminal in current directory</description>
+	<range></range>
+	<patterns>*</patterns>
+	<directories/>
+</action>
+<action>
+	<icon>go-parent-folder</icon>
+	<name>Ouvrir en root</name>
+	<submenu></submenu>
+	<unique-id>1622790717174452-1</unique-id>
+	<command>sudo dbus-run-session thunar</command>
+	<description>Open current directory as root</description>
+	<range></range>
+	<patterns>*</patterns>
+	<directories/>
+</action>
+<action>
+	<icon>document-edit-sign</icon>
+	<name>Edition en root</name>
+	<submenu></submenu>
+	<unique-id>1622790919788057-2</unique-id>
+	<command>sudo geany -i %f</command>
+	<description>Edit file as root</description>
+	<range></range>
+	<patterns>*</patterns>
+	<text-files/>
+</action>
+</actions>

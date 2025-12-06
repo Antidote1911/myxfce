@@ -1,0 +1,692 @@
+<?xml version="1.1" encoding="UTF-8"?>
+
+<channel name="xfce4-desktop" version="1.0">
+  <property name="desktop-icons" type="empty">
+    <property name="file-icons" type="empty">
+      <property name="show-home" type="bool" value="false"/>
+      <property name="show-filesystem" type="bool" value="false"/>
+      <property name="show-trash" type="bool" value="false"/>
+      <property name="show-removable" type="bool" value="false"/>
+    </property>
+    <property name="style" type="int" value="0"/>
+  </property>
+  <property name="last-settings-migration-version" type="uint" value="1"/>
+  <property name="backdrop" type="empty">
+    <property name="screen0" type="empty">
+      <property name="monitor1" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace1" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace2" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace3" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace4" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+      </property>
+      <property name="monitor2" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace1" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace2" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace3" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace4" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+      </property>
+      <property name="monitor3" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace1" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace2" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace3" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace4" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+      </property>
+      <property name="monitor-1" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace1" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace2" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace3" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace4" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+      </property>
+      <property name="monitor-2" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace1" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace2" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace3" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace4" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+      </property>
+      <property name="monitor-3" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace1" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace2" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace3" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace4" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+      </property>
+      <property name="monitorDP-1" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace1" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace2" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace3" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace4" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+      </property>
+      <property name="monitorDP-2" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace1" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace2" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace3" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace4" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+      </property>
+      <property name="monitorDP-3" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace1" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace2" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace3" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace4" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+      </property>
+      <property name="monitorDP1" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace1" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace2" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace3" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace4" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+      </property>
+      <property name="monitorDP2" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace1" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace2" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace3" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace4" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+      </property>
+      <property name="monitorDP3" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace1" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace2" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace3" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace4" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+      </property>
+      <property name="monitorHDMI-1" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace1" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace2" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace3" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace4" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+      </property>
+      <property name="monitorHDMI-2" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace1" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace2" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace3" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace4" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+      </property>
+      <property name="monitorHDMI-3" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace1" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace2" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace3" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace4" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+      </property>
+      <property name="monitorLVDS1" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace1" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace2" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace3" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace4" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+      </property>
+      <property name="monitorLVDS2" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace1" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace2" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace3" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace4" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+      </property>
+      <property name="monitorLVDS3" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace1" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace2" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace3" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace4" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+      </property>
+      <property name="monitorLVDS-1" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace1" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace2" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace3" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace4" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+      </property>
+      <property name="monitorLVDS-2" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace1" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace2" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace3" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace4" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+      </property>
+      <property name="monitorLVDS-3" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace1" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace2" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace3" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace4" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+      </property>
+      <property name="DVI1" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace1" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace2" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace3" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace4" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+      </property>
+      <property name="monitorDVI2" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace1" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace2" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace3" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace4" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+      </property>
+      <property name="monitorDVI3" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace1" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace2" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace3" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace4" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+      </property>
+      <property name="DVI-1" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace1" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace2" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace3" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace4" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+      </property>
+      <property name="monitorDVI-2" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace1" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace2" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace3" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace4" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+      </property>
+      <property name="monitorDVI-3" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace1" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace2" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace3" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace4" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+      </property>
+      <property name="monitorVGA1" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace1" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace2" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace3" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace4" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+      </property>
+      <property name="monitorVGA2" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace1" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace2" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace3" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace4" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+      </property>
+      <property name="monitorVGA3" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace1" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace2" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace3" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace4" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+      </property>
+      <property name="monitorVGA-1" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace1" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace2" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace3" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace4" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+      </property>
+      <property name="monitorVGA-2" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace1" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace2" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace3" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace4" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+      </property>
+      <property name="monitorVGA-3" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace1" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace2" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace3" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace4" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+      </property>
+      <property name="monitorVirtual-1" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace1" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace2" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace3" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace4" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+      </property>
+      <property name="monitorVirtual-2" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace1" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace2" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace3" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace4" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+      </property>
+      <property name="monitorVirtual-3" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace1" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace2" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace3" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace4" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+      </property>
+      <property name="monitorVirtual1" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace1" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace2" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace3" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace4" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+      </property>
+      <property name="monitorVirtual2" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace1" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace2" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace3" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace4" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+      </property>
+      <property name="monitorVirtual3" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace1" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace2" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace3" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+        <property name="workspace4" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+      </property>
+      <property name="monitorHDMI-0" type="empty">
+        <property name="workspace0" type="empty">
+          <property name="last-image" type="string" value="/usr/share/backgrounds/packarch/default.jpg"/>
+        </property>
+      </property>
+    </property>
+  </property>
+  <property name="single-workspace-mode" type="bool" value="true"/>
+  <property name="single-workspace-number" type="int" value="1"/>
+  <property name="last" type="empty">
+    <property name="window-width" type="int" value="846"/>
+    <property name="window-height" type="int" value="504"/>
+  </property>
+</channel>
