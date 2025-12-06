@@ -9,7 +9,7 @@
 1. In the live environment, choose "Fetch your install customization file" from the Welcome app.
 2. Type or paste the URL for the Xfce user_commands.bash file.
 ```
-https://raw.githubusercontent.com/Antidote1911/myxfce/main/setup_xfce_isomode.bash
+https://raw.githubusercontent.com/Antidote1911/myxfce/master/setup_xfce_isomode.bash
 ```
 ![welcome_install-customization-file](https://github.com/user-attachments/assets/b4b9e882-0e53-4e11-be10-a92e5b55cefb)
 

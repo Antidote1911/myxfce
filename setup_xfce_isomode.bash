@@ -32,7 +32,7 @@ fi
 
 # Remove the repo
 echo "Removing the xfce repo..."
-rm -rf xfce
+rm -rf myxfce
 
 # Enable some service
 echo "Enabling the some service..."
