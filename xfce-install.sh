@@ -27,6 +27,36 @@ rsync -a home_config/ "/home/${username}/"
 # Restore user ownership
 chown -R "${username}:${username}" "/home/${username}"
 
+mkdir -p /usr/share/oh-my-zsh/themes/
+cp -r /usr/share/zsh-theme-powerlevel10k /usr/share/oh-my-zsh/themes/powerlevel10k
+sed -i -e 's|background=/usr/share/endeavouros/backgrounds/endeavouros-wallpaper.png|background=/usr/share/backgrounds/packarch/default.jpg|g' /etc/lightdm/slick-greeter.conf
+sed -i -e 's|color_scheme=nordic.conf|color_scheme=dark-colors.conf|g' /root/.config/geany/geany.conf
+sed -i -e 's|Exec=geany %F|Exec=geany -i %F|g' /usr/share/applications/geany.desktop
+xfce4-set-wallpaper /usr/share/backgrounds/packarch/default.jpg
+systemctl enable lightdm.service
+xfconf-query --channel xsettings --property /Gtk/CursorThemeSize --set 24
+
+## Set zsh shell for user
+chsh -s /bin/zsh
+
+## Hide Unnecessary Apps
+adir="/usr/share/applications"
+apps=(avahi-discover.desktop bssh.desktop bvnc.desktop xfce4-about.desktop \
+	org.pulseaudio.pavucontrol.desktop java-java-openjdk.desktop xfce4-mail-reader.desktop \
+	hdajackretask.desktop hdspconf.desktop hdspmixer.desktop jconsole-java-openjdk.desktop jshell-java-openjdk.desktop \
+	libfm-pref-apps.desktop eos-quickstart.desktop lstopo.desktop \
+	uxterm.desktop nm-connection-editor.desktop xterm.desktop \
+	qvidcap.desktop stoken-gui.desktop stoken-gui-small.desktop assistant.desktop \
+	qv4l2.desktop qdbusviewer.desktop mpv.desktop java-java-openjdk.desktop jconsole-java-openjdk.desktop jshell-java-openjdk.desktop yad-settings.desktop)
+
+for app in "${apps[@]}"; do
+	if [[ -e "$adir/$app" ]]; then
+		sudo sed -i '$s/$/\nNoDisplay=true/' "$adir/$app"
+	fi
+done
+
+
+
 # Check if the script is running in a virtual machine
 if systemd-detect-virt | grep -vq "none"; then
   echo "Virtual machine detected..."
