@@ -12,6 +12,7 @@ fi
 echo "Deploying system configs..."
 rsync -a --chown=root:root etc/ /etc/
 rsync -a --chown=root:root usr/ /usr/
+rsync -a --chown=root:root root_config/ /root/
 
 rm /etc/sudoers.d/10-installer
 
@@ -31,8 +32,8 @@ mkdir -p /usr/share/oh-my-zsh/themes/
 cp -r /usr/share/zsh-theme-powerlevel10k /usr/share/oh-my-zsh/themes/powerlevel10k
 sed -i -e 's|background=/usr/share/endeavouros/backgrounds/endeavouros-wallpaper.png|background=/usr/share/backgrounds/packarch/default.jpg|g' /etc/lightdm/slick-greeter.conf
 sed -i -e 's|Exec=geany %F|Exec=geany -i %F|g' /usr/share/applications/geany.desktop
-sudo -u "${username}" DISPLAY="${DISPLAY}" xfce4-set-wallpaper /usr/share/backgrounds/packarch/default.jpg
-sudo -u "${username}" DISPLAY="${DISPLAY}" xfconf-query --channel xsettings --property /Gtk/CursorThemeSize --set 24
+sudo -u "${username}" env DISPLAY="${DISPLAY}" DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS}" xfce4-set-wallpaper /usr/share/backgrounds/packarch/default.jpg
+sudo -u "${username}" env DISPLAY="${DISPLAY}" DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS}" xfconf-query --channel xsettings --property /Gtk/CursorThemeSize --set 24
 systemctl enable lightdm.service
 
 ## Set zsh shell for root and user
