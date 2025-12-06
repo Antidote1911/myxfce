@@ -37,7 +37,8 @@ systemctl enable lightdm.service
 xfconf-query --channel xsettings --property /Gtk/CursorThemeSize --set 24
 
 ## Set zsh shell for user
-chsh -s /bin/zsh
+chsh -s $(which zsh) root
+chsh -s $(which zsh) "${username}"
 
 ## Hide Unnecessary Apps
 adir="/usr/share/applications"
