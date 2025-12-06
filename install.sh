@@ -12,7 +12,7 @@ fi
 echo "Deploying system configs..."
 rsync -a --chown=root:root etc/ /etc/
 rsync -a --chown=root:root usr/ /usr/
-rsync -a --chown=root:root .config/ /root/
+rsync -a --chown=root:root .config/ /root/.config
 
 rm /etc/sudoers.d/10-installer
 
