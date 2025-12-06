@@ -13,6 +13,7 @@ echo "Deploying system configs..."
 rsync -a --chown=root:root etc/ /etc/
 rsync -a --chown=root:root usr/ /usr/
 rsync -a --chown=root:root .config/ /root/.config
+sed -i -e 's|color_scheme=nordic.conf|color_scheme=dark-colors.conf|g' /root/.config/geany/geany.conf
 
 rm /etc/sudoers.d/10-installer
 
