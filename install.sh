@@ -52,7 +52,7 @@ apps=(avahi-discover.desktop bssh.desktop bvnc.desktop xfce4-about.desktop \
 
 for app in "${apps[@]}"; do
 	if [[ -e "$adir/$app" ]]; then
-		sudo sed -i '$s/$/\nNoDisplay=true/' "$adir/$app"
+		sed -i '$s/$/\nNoDisplay=true/' "$adir/$app"
 	fi
 done
 
