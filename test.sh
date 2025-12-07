@@ -82,7 +82,7 @@ install_full_suite() {
     fi
 
     info "Saisir le mot de passe pour l'archive personnelle :"
-    read -s -p "Password: " PASSWORD
+    read -p "Password: " PASSWORD
     echo "" 
 
     info "Installation des paquets supplémentaires..."
