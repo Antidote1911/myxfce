@@ -41,14 +41,7 @@ zsh-theme-powerlevel10k-git
 packarch-icons-luna
 packarch-gtk-theme-kripton
 packarch-fonts
-cryptyrust
-discord
-packarch-rmatrix
 smplayer
 smplayer-skins
 smplayer-themes
-mkvtoolnix-gui
-rustup
-virtualbox
-virtualbox-host-modules-arch
-keepassxc
+

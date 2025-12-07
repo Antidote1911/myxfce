@@ -1,0 +1,8 @@
+cryptyrust
+discord
+packarch-rmatrix
+mkvtoolnix-gui
+rustup
+virtualbox
+virtualbox-host-modules-arch
+keepassxc

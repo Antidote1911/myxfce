@@ -28,13 +28,14 @@ rm /etc/sudoers.d/10-installer
 # Install the custom package list
 echo "Installing needed packages..."
 pacman -Syy
-pacman -S --noconfirm --noprogressbar --needed --disable-download-timeout $(<packages-repository.txt)
+pacman -S --noconfirm --noprogressbar --needed --disable-download-timeout $(<packages-base.txt)
 
 ########## Only for full install ###########################
 if [[ $vm_setting == 1 ]]; then
   echo "${green}Enter password to decrypt personal archive:${reset}"
   read -p "Password: " password
   echo "${green}Install full desktop and applications${reset}"
+  pacman -S --noconfirm --noprogressbar --needed --disable-download-timeout $(<packages-extra.txt)
   sudo -u "${username}" rustup toolchain install stable
   
   ## Add syno nfs share to autofs
