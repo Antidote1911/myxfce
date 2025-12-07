@@ -40,14 +40,13 @@ rm -f /etc/sudoers.d/10-installer
 # --- 2. Installation des Paquets de base ---
 info "Installation des paquets de base..."
 pacman -Syy
-# Utilisation de xargs pour une lecture plus propre si le fichier est gros, ou cat simple
 pacman -S --noconfirm --noprogressbar --needed --disable-download-timeout $(<packages-base.txt)
 
 # --- 3. Installation Complète (Optionnelle) ---
 if [[ "$VM_SETTING" == "1" ]]; then
   info "Saisir le mot de passe pour l'archive personnelle :"
-  read -s -p "Password: " PASSWORD
-  echo "" # Retour à la ligne après la saisie masquée
+  read -p "Password: " PASSWORD
+  echo "" # Retour à la ligne après la saisie
 
   info "Installation des paquets supplémentaires..."
   pacman -S --noconfirm --noprogressbar --needed --disable-download-timeout $(<packages-extra.txt)
@@ -72,17 +71,12 @@ if [[ "$VM_SETTING" == "1" ]]; then
       cryptyrust_cli -d myEncryptedFile -p "${PASSWORD}" -o tmp.tar.gz
       tar -xf tmp.tar.gz -C "/home/${USERNAME}/"
       rm tmp.tar.gz # Nettoyage immédiat
+      # Exécution du script gitconfig (correction des droits d'exécution si besoin)
+      chmod +x "/home/${USERNAME}/gitconfig.sh"
+      sudo -u "${USERNAME}" "/home/${USERNAME}/gitconfig.sh"
   else
       error "cryptyrust_cli non trouvé, saut de l'étape de déchiffrement."
   fi
-
-  # Exécution du script gitconfig (correction des droits d'exécution si besoin)
-  chmod +x "/home/${USERNAME}/gitconfig.sh"
-  sudo -u "${USERNAME}" "/home/${USERNAME}/gitconfig.sh"
-
-  # Installation AUR
-  info "Installation des paquets AUR (yay)..."
-  sudo -u "${USERNAME}" yay -S --noconfirm --answerdiff None --answerclean None filebot rustrover rustrover-jre
 fi
 
 # --- 4. Configuration Utilisateur ---
