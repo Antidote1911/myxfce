@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Configuration du log
+LOGFILE="install_log_$(date +%F_%H-%M).txt"
+
+# Redirection de tout (stdout et stderr) vers le fichier ET l'écran
+exec > >(tee -i "$LOGFILE") 2>&1
+
 # Arrêter le script à la moindre erreur
 set -e
 
@@ -33,7 +39,7 @@ rsync -a --chown=root:root etc/ /etc/
 rsync -a --chown=root:root usr/ /usr/
 rsync -a --chown=root:root .config/ /root/.config
 
-# Modification Geany
+# Modification Geany pour root
 sed -i 's|color_scheme=nordic.conf|color_scheme=dark-colors.conf|g' /root/.config/geany/geany.conf
 rm -f /etc/sudoers.d/10-installer
 
@@ -87,9 +93,8 @@ rsync -a --chown="${USERNAME}:${USERNAME}" .config "/home/${USERNAME}/"
 rsync -a --chown="${USERNAME}:${USERNAME}" home_config/ "/home/${USERNAME}/"
 
 # Thèmes et UI
-THEME_DIR="/usr/share/oh-my-zsh/themes"
-mkdir -p "$THEME_DIR"
-[ -d "/usr/share/zsh-theme-powerlevel10k" ] && cp -r /usr/share/zsh-theme-powerlevel10k "$THEME_DIR/powerlevel10k"
+mkdir -p /usr/share/oh-my-zsh/themes/
+cp -r /usr/share/zsh-theme-powerlevel10k /usr/share/oh-my-zsh/themes/powerlevel10k
 
 # Tweaks fichiers de conf
 sed -i 's|background=/usr/share/endeavouros/backgrounds/endeavouros-wallpaper.png|background=/usr/share/backgrounds/packarch/default.jpg|g' /etc/lightdm/slick-greeter.conf
