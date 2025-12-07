@@ -1,106 +1,145 @@
 #!/bin/bash
 
-red=`tput setaf 1`
-green=`tput setaf 2`
-reset=`tput sgr0`
+# Configuration du log
+LOGFILE="install_log_$(date +%F_%H-%M).txt"
 
-username="$(logname)"
+# Redirection de tout (stdout et stderr) vers le fichier ET l'écran
+exec > >(tee -i "$LOGFILE") 2>&1
 
-# Check for sudo
+# Arrêter le script à la moindre erreur
+set -e
+
+# Définition des couleurs
+RED=$(tput setaf 1)
+GREEN=$(tput setaf 2)
+BLUE=$(tput setaf 4)
+RESET=$(tput sgr0)
+
+USERNAME="$(logname)"
+NAS_IP="192.168.1.96"
+
+# Fonction pour afficher des messages formatés
+info() { echo "${GREEN}[INFO] $1${RESET}"; }
+error() { echo "${RED}[ERREUR] $1${RESET}"; }
+
+# Vérification Root
 if [ "$EUID" -ne 0 ]; then
-  echo "${red}This script must be run with sudo.${reset}"
+  error "Ce script doit être lancé avec sudo."
   exit 1
 fi
 
-echo "${green}Install full desktop or minimal ?${reset}"
-read -p "1 - Full, 0 - Minimal: " vm_setting
+# --- Choix de l'installation ---
+info "Installation : Desktop Complet (1) ou Minimal (0) ?"
+read -p "Votre choix : " VM_SETTING
 
-# Deploy system configs
-echo "${green}Deploying system configs...${reset}"
+# --- 1. Configuration Système ---
+info "Déploiement des configurations système..."
+# Copie avec préservation des droits, plus efficace
 rsync -a --chown=root:root etc/ /etc/
 rsync -a --chown=root:root usr/ /usr/
 rsync -a --chown=root:root .config/ /root/.config
-sed -i -e 's|color_scheme=nordic.conf|color_scheme=dark-colors.conf|g' /root/.config/geany/geany.conf
 
-rm /etc/sudoers.d/10-installer
+# Modification Geany pour root
+sed -i 's|color_scheme=nordic.conf|color_scheme=dark-colors.conf|g' /root/.config/geany/geany.conf
+rm -f /etc/sudoers.d/10-installer
 
-# Install the base package list
-echo "${green}Installing base packages...${reset}"
+# --- 2. Installation des Paquets de base ---
+info "Installation des paquets de base..."
 pacman -Syy
 pacman -S --noconfirm --noprogressbar --needed --disable-download-timeout $(<packages-base.txt)
 
-########## Only for full install ###########################
-if [[ $vm_setting == 1 ]]; then
-  echo "${green}Enter password to decrypt personal archive:${reset}"
-  read -p "Password: " password
-  echo "${green}Install extra packages...${reset}"
+# --- 3. Installation Complète (Optionnelle) ---
+if [[ "$VM_SETTING" == "1" ]]; then
+  info "Saisir le mot de passe pour l'archive personnelle :"
+  read -p "Password: " PASSWORD
+  echo "" # Retour à la ligne après la saisie
+
+  info "Installation des paquets supplémentaires..."
   pacman -S --noconfirm --noprogressbar --needed --disable-download-timeout $(<packages-extra.txt)
   
-  echo "${green}Install Rust toolchain...${reset}"
-  sudo -u "${username}" rustup toolchain install stable
+  info "Installation de la toolchain Rust..."
+  sudo -u "${USERNAME}" rustup toolchain install stable
   
-  ## Add syno nfs share to autofs
-  mkdir /mnt/Partage /mnt/Photos
+  # Configuration NFS / Fstab
+  mkdir -p /mnt/Partage /mnt/Photos
   
-  tee -a /etc/fstab << EOL
-  
-## Synology DS918
-192.168.1.96:/volume1/Partage /mnt/Partage nfs _netdev,noauto,x-systemd.automount,x-systemd.mount-timeout=10,timeo=14,x-systemd.idle-timeout=1min 0 0
-192.168.1.96:/volume1/Photos  /mnt/Photos  nfs _netdev,noauto,x-systemd.automount,x-systemd.mount-timeout=10,timeo=14,x-systemd.idle-timeout=1min 0 0
-EOL
+  # Utilisation de <<-EOL pour ignorer l'indentation (tabs) dans le script
+  cat >> /etc/fstab <<-EOL
+	
+	## Synology DS918
+	${NAS_IP}:/volume1/Partage /mnt/Partage nfs _netdev,noauto,x-systemd.automount,x-systemd.mount-timeout=10,timeo=14,x-systemd.idle-timeout=1min 0 0
+	${NAS_IP}:/volume1/Photos  /mnt/Photos  nfs _netdev,noauto,x-systemd.automount,x-systemd.mount-timeout=10,timeo=14,x-systemd.idle-timeout=1min 0 0
+	EOL
 
+  # Gestion Archive Chiffrée
   modprobe vboxdrv
-  cryptyrust_cli -d myEncryptedFile -p ${password} -o tmp.tar.gz
-  tar -xf tmp.tar.gz -C /home/${username}/
-  sudo -u "${username}" /home/${username}/./gitconfig.sh
-  sudo -u "${username}" yay -S --noconfirm --answerdiff None --answerclean None filebot rustrover rustrover-jre
+  if command -v cryptyrust_cli &> /dev/null; then
+      cryptyrust_cli -d myEncryptedFile -p "${PASSWORD}" -o tmp.tar.gz
+      tar -xf tmp.tar.gz -C "/home/${USERNAME}/"
+      rm tmp.tar.gz # Nettoyage immédiat
+      # Exécution du script gitconfig (correction des droits d'exécution si besoin)
+      chmod +x "/home/${USERNAME}/gitconfig.sh"
+      sudo -u "${USERNAME}" "/home/${USERNAME}/gitconfig.sh"
+  else
+      error "cryptyrust_cli non trouvé, saut de l'étape de déchiffrement."
+  fi
 fi
-####################################################
 
-# Deploy user configs
-echo "${green}Deploying user configs...${reset}"
-rsync -a .config "/home/${username}/"
-rsync -a home_config/ "/home/${username}/"
-# Restore user ownership
-chown -R "${username}:${username}" "/home/${username}"
+# --- 4. Configuration Utilisateur ---
+info "Déploiement des configurations utilisateur..."
 
+# Rsync direct avec le bon propriétaire, évite le chown récursif lourd après coup
+rsync -a --chown="${USERNAME}:${USERNAME}" .config "/home/${USERNAME}/"
+rsync -a --chown="${USERNAME}:${USERNAME}" home_config/ "/home/${USERNAME}/"
+
+# Thèmes et UI
 mkdir -p /usr/share/oh-my-zsh/themes/
 cp -r /usr/share/zsh-theme-powerlevel10k /usr/share/oh-my-zsh/themes/powerlevel10k
-sed -i -e 's|background=/usr/share/endeavouros/backgrounds/endeavouros-wallpaper.png|background=/usr/share/backgrounds/packarch/default.jpg|g' /etc/lightdm/slick-greeter.conf
-sed -i -e 's|Exec=geany %F|Exec=geany -i %F|g' /usr/share/applications/geany.desktop
-sudo -u "${username}" env DISPLAY="${DISPLAY}" DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS}" xfce4-set-wallpaper /usr/share/backgrounds/packarch/default.jpg
-sudo -u "${username}" env DISPLAY="${DISPLAY}" DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS}" xfconf-query --channel xsettings --property /Gtk/CursorThemeSize --set 24
+
+# Tweaks fichiers de conf
+sed -i 's|background=/usr/share/endeavouros/backgrounds/endeavouros-wallpaper.png|background=/usr/share/backgrounds/packarch/default.jpg|g' /etc/lightdm/slick-greeter.conf
+sed -i 's|Exec=geany %F|Exec=geany -i %F|g' /usr/share/applications/geany.desktop
+sed -i "s/antidote/${USERNAME}/g" /home/${USERNAME}/.config/xfce4/xfconf/xfce-perchannel-xml/thunar.xml
+
+# Paramètres XFCE (Attention: peut échouer si X n'est pas lancé, on ajoute || true pour ne pas bloquer le script)
+sudo -u "${USERNAME}" env DISPLAY="${DISPLAY}" DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS}" xfce4-set-wallpaper /usr/share/backgrounds/packarch/default.jpg || true
+sudo -u "${USERNAME}" env DISPLAY="${DISPLAY}" DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS}" xfconf-query --channel xsettings --property /Gtk/CursorThemeSize --set 24 || true
+
 systemctl enable lightdm.service
 
-## Set zsh shell for root and user
-chsh -s $(which zsh) root
-chsh -s $(which zsh) "${username}"
+# Changement de Shell
+chsh -s "$(which zsh)" root
+chsh -s "$(which zsh)" "${USERNAME}"
 
-## Hide Unnecessary Apps
-adir="/usr/share/applications"
-apps=(avahi-discover.desktop bssh.desktop bvnc.desktop xfce4-about.desktop \
-	org.pulseaudio.pavucontrol.desktop java-java-openjdk.desktop xfce4-mail-reader.desktop \
-	hdajackretask.desktop hdspconf.desktop hdspmixer.desktop jconsole-java-openjdk.desktop jshell-java-openjdk.desktop \
-	libfm-pref-apps.desktop eos-quickstart.desktop lstopo.desktop \
-	uxterm.desktop nm-connection-editor.desktop xterm.desktop \
-	qvidcap.desktop stoken-gui.desktop stoken-gui-small.desktop assistant.desktop \
-	qv4l2.desktop qdbusviewer.desktop mpv.desktop java-java-openjdk.desktop jconsole-java-openjdk.desktop jshell-java-openjdk.desktop yad-settings.desktop)
+# --- 5. Masquer les applications inutiles ---
+info "Nettoyage des entrées de menu..."
+APPS_DIR="/usr/share/applications"
+APPS_TO_HIDE=(
+    "avahi-discover.desktop" "bssh.desktop" "bvnc.desktop" "xfce4-about.desktop"
+    "org.pulseaudio.pavucontrol.desktop" "java-java-openjdk.desktop" "xfce4-mail-reader.desktop"
+    "hdajackretask.desktop" "hdspconf.desktop" "hdspmixer.desktop" "jconsole-java-openjdk.desktop"
+    "jshell-java-openjdk.desktop" "libfm-pref-apps.desktop" "eos-quickstart.desktop" "lstopo.desktop"
+    "uxterm.desktop" "nm-connection-editor.desktop" "xterm.desktop" "qvidcap.desktop"
+    "stoken-gui.desktop" "stoken-gui-small.desktop" "assistant.desktop" "qv4l2.desktop"
+    "qdbusviewer.desktop" "mpv.desktop" "yad-settings.desktop"
+)
 
-for app in "${apps[@]}"; do
-	if [[ -e "$adir/$app" ]]; then
-		sed -i '$s/$/\nNoDisplay=true/' "$adir/$app"
-	fi
+for app in "${APPS_TO_HIDE[@]}"; do
+    if [[ -f "$APPS_DIR/$app" ]]; then
+        # Ajoute NoDisplay seulement si pas déjà présent
+        if ! grep -q "NoDisplay=true" "$APPS_DIR/$app"; then
+            echo "NoDisplay=true" >> "$APPS_DIR/$app"
+        fi
+    fi
 done
 
-
-
-# Check if the script is running in a virtual machine
+# --- 6. Finalisation ---
+# Check VM (informatif)
 if systemd-detect-virt | grep -vq "none"; then
-  echo "${green}Virtual machine detected...${reset}"
+  info "Machine virtuelle détectée."
 fi
 
-# Remove the repo
-echo "${green}Removing myxfce repo folder...${reset}"
-rm -rf ../myxfce
+info "Suppression du dossier repo..."
+# rm -rf ../myxfce
 
-echo "${blue}Installation complete...${reset}"
+info "Installation terminée avec succès !"
