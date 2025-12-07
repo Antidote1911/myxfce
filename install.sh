@@ -8,7 +8,7 @@ username="$(logname)"
 
 # Check for sudo
 if [ "$EUID" -ne 0 ]; then
-  echo "This script must be run with sudo."
+  echo "${red}This script must be run with sudo.${reset}"
   exit 1
 fi
 
@@ -16,7 +16,7 @@ echo "${green}Install full desktop or minimal ?${reset}"
 read -p "1 - Full, 0 - Minimal: " vm_setting
 
 # Deploy system configs
-echo "Deploying system configs..."
+echo "${green}Deploying system configs...${reset}"
 rsync -a --chown=root:root etc/ /etc/
 rsync -a --chown=root:root usr/ /usr/
 rsync -a --chown=root:root .config/ /root/.config
@@ -24,9 +24,8 @@ sed -i -e 's|color_scheme=nordic.conf|color_scheme=dark-colors.conf|g' /root/.co
 
 rm /etc/sudoers.d/10-installer
 
-
-# Install the custom package list
-echo "Installing needed packages..."
+# Install the base package list
+echo "${green}Installing base packages...${reset}"
 pacman -Syy
 pacman -S --noconfirm --noprogressbar --needed --disable-download-timeout $(<packages-base.txt)
 
@@ -34,8 +33,10 @@ pacman -S --noconfirm --noprogressbar --needed --disable-download-timeout $(<pac
 if [[ $vm_setting == 1 ]]; then
   echo "${green}Enter password to decrypt personal archive:${reset}"
   read -p "Password: " password
-  echo "${green}Install full desktop and applications${reset}"
+  echo "${green}Install extra packages...${reset}"
   pacman -S --noconfirm --noprogressbar --needed --disable-download-timeout $(<packages-extra.txt)
+  
+  echo "${green}Install Rust toolchain...${reset}"
   sudo -u "${username}" rustup toolchain install stable
   
   ## Add syno nfs share to autofs
@@ -51,14 +52,13 @@ EOL
   modprobe vboxdrv
   cryptyrust_cli -d myEncryptedFile -p ${password} -o tmp.tar.gz
   tar -xf tmp.tar.gz -C /home/${username}/
-  eval `ssh-agent -s`
   sudo -u "${username}" /home/${username}/./gitconfig.sh
   sudo -u "${username}" yay -S --noconfirm --answerdiff None --answerclean None filebot rustrover rustrover-jre
 fi
 ####################################################
 
 # Deploy user configs
-echo "Deploying user configs..."
+echo "${green}Deploying user configs...${reset}"
 rsync -a .config "/home/${username}/"
 rsync -a home_config/ "/home/${username}/"
 # Restore user ownership
@@ -96,13 +96,11 @@ done
 
 # Check if the script is running in a virtual machine
 if systemd-detect-virt | grep -vq "none"; then
-  echo "Virtual machine detected..."
-
+  echo "${green}Virtual machine detected...${reset}"
 fi
 
 # Remove the repo
-echo "Removing the EOS Community Sway repo..."
+echo "${green}Removing myxfce repo folder...${reset}"
 rm -rf ../myxfce
 
-echo "Installation complete."
-
+echo "${blue}Installation complete...${reset}"
