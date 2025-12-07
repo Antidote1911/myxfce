@@ -35,7 +35,6 @@ if [[ $vm_setting == 1 ]]; then
   echo "${green}Enter password to decrypt personal archive:${reset}"
   read -p "Password: " password
   echo "${green}Install full desktop and applications${reset}"
-  pacman -S --noconfirm --noprogressbar --needed --disable-download-timeout $(<extra_pkgs.txt)
   sudo -u "${username}" rustup toolchain install stable
   
   ## Add syno nfs share to autofs
@@ -51,7 +50,7 @@ EOL
   modprobe vboxdrv
   cryptyrust_cli -d myEncryptedFile -p ${password} -o tmp.tar.gz
   tar -xf tmp.tar.gz -C /home/${username}/
-  sudo -u "${username}" eval `ssh-agent -s`
+  eval `ssh-agent -s`
   sudo -u "${username}" /home/${username}/./gitconfig.sh
   sudo -u "${username}" yay -S --noconfirm --answerdiff None --answerclean None filebot rustrover rustrover-jre
 fi
