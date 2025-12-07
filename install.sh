@@ -141,7 +141,17 @@ if systemd-detect-virt | grep -vq "none"; then
   info "Machine virtuelle détectée."
 fi
 
+info "Sauvegarde du log et nettoyage..."
+
+# Copie du log dans le home de l'utilisateur
+cp "$LOGFILE" "/home/${USERNAME}/$LOGFILE"
+# Changement de propriétaire pour que l'utilisateur puisse le lire/supprimer (sinon il reste root)
+chown "${USERNAME}:${USERNAME}" "/home/${USERNAME}/$LOGFILE"
+info "Log copié dans /home/${USERNAME}/$LOGFILE"
+
 info "Suppression du dossier repo..."
-# rm -rf ../myxfce
+# On sort du dossier actuel pour pouvoir le supprimer proprement
+cd ..
+rm -rf myxfce
 
 info "Installation terminée avec succès !"
