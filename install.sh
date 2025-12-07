@@ -99,7 +99,7 @@ cp -r /usr/share/zsh-theme-powerlevel10k /usr/share/oh-my-zsh/themes/powerlevel1
 # Tweaks fichiers de conf
 sed -i 's|background=/usr/share/endeavouros/backgrounds/endeavouros-wallpaper.png|background=/usr/share/backgrounds/packarch/default.jpg|g' /etc/lightdm/slick-greeter.conf
 sed -i 's|Exec=geany %F|Exec=geany -i %F|g' /usr/share/applications/geany.desktop
-sed -i "s/antidote/${USERNAME}/g" /home/${USERNAME}/.config/xfce4/xfconf/xfce-perchannel-xml/thunar.xml
+sed -i "s/antidote/"${USERNAME}"/g" /home/"${USERNAME}"/.config/xfce4/xfconf/xfce-perchannel-xml/thunar.xml
 
 # Paramètres XFCE (Attention: peut échouer si X n'est pas lancé, on ajoute || true pour ne pas bloquer le script)
 sudo -u "${USERNAME}" env DISPLAY="${DISPLAY}" DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS}" xfce4-set-wallpaper /usr/share/backgrounds/packarch/default.jpg || true
