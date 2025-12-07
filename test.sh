@@ -139,6 +139,6 @@ if systemd-detect-virt | grep -vq "none"; then
 fi
 
 info "Suppression du dossier repo..."
-rm -rf ../myxfce
+# rm -rf ../myxfce
 
 info "Installation terminée avec succès !"
