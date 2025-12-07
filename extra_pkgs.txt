@@ -1,0 +1,12 @@
+cryptyrust
+discord
+packarch-rmatrix
+smplayer
+smplayer-skins
+smplayer-themes
+mkvtoolnix-gui
+rustup
+virtualbox
+virtualbox-host-modules-arch
+keepassxc
+
