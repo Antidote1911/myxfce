@@ -53,7 +53,7 @@ EOL
   tar -xf tmp.tar.gz -C /home/${username}/
   sudo -u "${username}" eval `ssh-agent -s`
   sudo -u "${username}" /home/${username}/./gitconfig.sh
-  yay -S --noconfirm --answerdiff None --answerclean None filebot rustrover rustrover-jre
+  sudo -u "${username}" yay -S --noconfirm --answerdiff None --answerclean None filebot rustrover rustrover-jre
 fi
 ####################################################
 
