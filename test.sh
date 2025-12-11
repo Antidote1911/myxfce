@@ -60,10 +60,6 @@ configure_system_files() {
     rsync -a --chown=root:root etc/ /etc/
     rsync -a --chown=root:root usr/ /usr/
     rsync -a --chown=root:root config_root/ /root/.config
-
-    # Modification Geany pour root
-    
-    sed -i 's|color_scheme=nordic.conf|color_scheme=dark-colors.conf|g' /root/.config/geany/geany.conf
     rm -f /etc/sudoers.d/10-installer
 }
 
