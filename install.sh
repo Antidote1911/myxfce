@@ -99,7 +99,6 @@ install_full_suite() {
 	EOL
 
     # Gestion Archive Chiffrée
-    modprobe vboxdrv
     if command -v cryptyrust_cli &> /dev/null; then
         # Note: PASSWORD est une variable locale à cette fonction ou au scope appelant
         cryptyrust_cli -d myEncryptedFile -p "${PASSWORD}" -o tmp.tar.gz
