@@ -63,10 +63,19 @@ configure_system_files() {
     rm -f /etc/sudoers.d/10-installer
 }
 
+update_mirrors() {
+    info "Optimisation des miroirs de téléchargement (Reflector)..."
+    # Installe reflector s'il n'est pas là
+    pacman -S --noconfirm --needed reflector
+    # Trie les 10 miroirs HTTPS les plus récents et rapides en France (ou change le pays)
+    reflector --country France --protocol https --latest 10 --sort rate --save /etc/pacman.d/mirrorlist
+    # Force la mise à jour de la base de données
+    pacman -Syy
+}
+
 # Étape 2 : Paquets de base
 install_base_packages() {
     info "Installation des paquets de base..."
-    pacman -Syy
     pacman -S --noconfirm --noprogressbar --needed --disable-download-timeout $(<packages-base.txt)
 }
 
@@ -141,6 +150,11 @@ configure_user_environment() {
     # Changement de Shell
     chsh -s "$(which zsh)" root
     chsh -s "$(which zsh)" "${USERNAME}"
+    
+    # Vérifie si c'est un disque rotatif (0) ou SSD (non-0, souvent 0 sur SSD nvme/sata modernes mais check simple)
+    # Le plus simple est d'activer le timer, systemd est intelligent et ne fera rien si pas supporté
+    info "Activation du TRIM hebdomadaire pour SSD..."
+    systemctl enable --now fstrim.timer
 }
 
 # Étape 5 : Nettoyage des menus
@@ -186,7 +200,11 @@ finalize_installation() {
     # Pour être plus robuste, on pourrait supprimer le dossier $OLDPWD ou le dossier actuel avant le cd ..
     rm -rf myxfce
 
-    info "Installation terminée avec succès !"
+    info "Installation terminée !"
+    read -p "Voulez-vous redémarrer maintenant ? (O/n) " response
+    if [[ "$response" =~ ^[OoYy]$ ]] || [[ -z "$response" ]]; then
+        reboot
+    fi
 }
 
 # ==========================================
@@ -197,6 +215,7 @@ main() {
     check_root
     ask_install_mode
     configure_system_files
+    update_mirrors
     install_base_packages
     install_full_suite
     configure_user_environment
