@@ -66,6 +66,7 @@ configure_system_files() {
 update_mirrors() {
     info "Optimisation des miroirs de téléchargement (Reflector)..."
     # Trie les 10 miroirs HTTPS les plus récents et rapides en France (ou change le pays)
+    pacman -Syy
     reflector --country France --protocol https --latest 10 --sort rate --save /etc/pacman.d/mirrorlist
     # Force la mise à jour de la base de données
     pacman -Syy
