@@ -44,4 +44,5 @@ packarch-fonts
 smplayer
 smplayer-skins
 smplayer-themes
+hunspell-fr
 
