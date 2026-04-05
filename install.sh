@@ -18,7 +18,7 @@ RESET=$(tput sgr0)
 
 # Variables Globales
 USERNAME="$(logname)"
-NAS_IP="192.168.1.96"
+NAS_IP="192.168.1.65"
 VM_SETTING="0" # Valeur par défaut
 
 # ==========================================
@@ -89,13 +89,12 @@ install_full_suite() {
     sudo -u "${USERNAME}" rustup toolchain install stable
     
     # Configuration NFS / Fstab
-    mkdir -p /mnt/Partage /mnt/Photos
+    mkdir -p /mnt/medias
     
     cat >> /etc/fstab <<-EOL
 	
 	## Synology DS918
-	${NAS_IP}:/volume1/Partage /mnt/Partage nfs _netdev,noauto,x-systemd.automount,x-systemd.mount-timeout=10,timeo=14,x-systemd.idle-timeout=1min 0 0
-	${NAS_IP}:/volume1/Photos  /mnt/Photos  nfs _netdev,noauto,x-systemd.automount,x-systemd.mount-timeout=10,timeo=14,x-systemd.idle-timeout=1min 0 0
+	${NAS_IP}:/mnt/user/medias /mnt/medias nfs _netdev,noauto,x-systemd.automount,x-systemd.mount-timeout=10,timeo=14,x-systemd.idle-timeout=1min 0 0
 	EOL
 
     # Gestion Archive Chiffrée
