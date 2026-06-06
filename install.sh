@@ -6,157 +6,201 @@
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOGFILE="install_log_$(date +%F_%H-%M).txt"
-exec > >(tee -i "$LOGFILE") 2>&1
 
-# Arrêter le script à la moindre erreur, variables non définies, et erreurs dans les pipes
 set -euo pipefail
-
-# Couleurs
-RED=$(tput setaf 1)
-GREEN=$(tput setaf 2)
-BLUE=$(tput setaf 4)
-RESET=$(tput sgr0)
 
 # Variables Globales
 USERNAME="${SUDO_USER:-$(logname)}"
 NAS_IP="192.168.1.65"
-VM_SETTING="0" # Valeur par défaut
+VM_SETTING="0"
+BROWSER="none"
 
 # ==========================================
-# FONCTIONS UTILITAIRES
+# BOOTSTRAP
 # ==========================================
-
-info() {
-    echo "${GREEN}[INFO] $1${RESET}"
-}
-
-error() {
-    echo "${RED}[ERREUR] $1${RESET}"
-}
 
 check_root() {
     if [ "$EUID" -ne 0 ]; then
-        error "Ce script doit être lancé avec sudo."
+        echo "[ERREUR] Ce script doit être lancé avec sudo." >&2
         exit 1
     fi
 }
 
-trap 'error "Erreur ligne $LINENO — installation interrompue."' ERR
+ensure_dialog() {
+    if ! command -v dialog &>/dev/null; then
+        echo "Installation de dialog..."
+        pacman -S --noconfirm dialog
+    fi
+}
 
 # ==========================================
-# FONCTIONS D'ÉTAPE (BUSINESS LOGIC)
+# HELPERS UI
 # ==========================================
 
-# Étape 0 : Choix de l'utilisateur
+TITLE="  Installation myxfce  "
+
+ui_info() {
+    dialog --title "$TITLE" --infobox "\n$1" 6 58
+    sleep 1
+}
+
+ui_msg() {
+    dialog --title "$TITLE" --msgbox "\n$1" 8 58
+}
+
+ui_error() {
+    dialog --title " Erreur " --msgbox "\n$1" 8 58
+}
+
+log() {
+    echo "[INFO] $1"
+}
+
+trap 'ui_error "Erreur ligne $LINENO — installation interrompue."; exit 1' ERR
+
+# ==========================================
+# FONCTIONS D'ÉTAPE
+# ==========================================
+
+# Étape 0 : Choix du mode
 ask_install_mode() {
-    while true; do
-        info "Installation : Desktop Antidote (1) ou Normal (0) ?"
-        read -p "Votre choix [0/1] : " input_setting
-        [[ "$input_setting" == "0" || "$input_setting" == "1" ]] && break
-        error "Choix invalide. Entrez 0 ou 1."
-    done
-    VM_SETTING="$input_setting"
+    VM_SETTING=$(dialog --title "$TITLE" \
+        --menu "\nChoisissez le mode d'installation :" 12 58 2 \
+        "0" "Installation normale (minimale)" \
+        "1" "Installation complète (Desktop Antidote)" \
+        3>&1 1>&2 2>&3) || { ui_error "Installation annulée."; exit 1; }
+}
+
+# Étape 0b : Choix du navigateur
+choose_browser() {
+    BROWSER=$(dialog --title "$TITLE" \
+        --menu "\nChoisissez votre navigateur internet :" 14 58 5 \
+        "firefox"    "Firefox" \
+        "chromium"   "Chromium (Google sans compte)" \
+        "vivaldi"    "Vivaldi" \
+        "librewolf"  "LibreWolf (Firefox renforcé vie privée)" \
+        "none"       "Aucun navigateur" \
+        3>&1 1>&2 2>&3) || { ui_error "Installation annulée."; exit 1; }
 }
 
 # Étape 1 : Configuration Système
 configure_system_files() {
-    info "Déploiement des configurations système..."
+    ui_info "Déploiement des configurations système..."
+    log "Copie des fichiers système..."
 
-    # Copie avec préservation des droits
     rsync -a --chown=root:root etc/ /etc/
     rsync -a --chown=root:root usr/ /usr/
     rsync -a --chown=root:root config_root/ /root/.config
     rm -f /etc/sudoers.d/10-installer
 
-    info "Suppression du thème GRUB d'EndeavourOS..."
+    log "Suppression du thème GRUB EndeavourOS..."
     sed -i '/^GRUB_THEME=/d' /etc/default/grub
     grub-mkconfig -o /boot/grub/grub.cfg
 }
 
 # Étape 2 : Paquets de base
 install_base_packages() {
-    info "Installation des paquets de base..."
+    ui_info "Installation des paquets de base..."
     mapfile -t PKGS < <(grep -v '^[[:space:]]*$' packages-base.txt)
     pacman -Sy
     pacman -S --noconfirm --noprogressbar --needed --disable-download-timeout "${PKGS[@]}"
 }
 
-# Étape 3 : Installation Complète (Optionnelle)
-install_full_suite() {
-    if [[ "$VM_SETTING" != "1" ]]; then
-        info "Mode minimal sélectionné. Passage de l'étape complète."
+# Étape 3 : Navigateur
+install_browser() {
+    if [[ "$BROWSER" == "none" ]]; then
+        log "Aucun navigateur sélectionné, étape ignorée."
         return 0
     fi
 
-    info "Saisir le mot de passe pour l'archive personnelle :"
-    read -p "Password: " PASSWORD
-    echo ""
+    # EndeavourOS no-desktop installe firefox par défaut — le supprimer si un autre est choisi
+    if [[ "$BROWSER" != "firefox" ]] && pacman -Qi firefox &>/dev/null; then
+        ui_info "Suppression de Firefox (installé par EndeavourOS)..."
+        pacman -Rns --noconfirm firefox
+    fi
 
-    info "Installation des paquets supplémentaires..."
+    if [[ "$BROWSER" == "firefox" ]] && pacman -Qi firefox &>/dev/null; then
+        log "Firefox déjà installé, étape ignorée."
+        return 0
+    fi
+
+    ui_info "Installation du navigateur : $BROWSER..."
+    if [[ "$BROWSER" == "vivaldi" ]]; then
+        pacman -S --noconfirm --noprogressbar --needed vivaldi vivaldi-ffmpeg-codecs
+    else
+        pacman -S --noconfirm --noprogressbar --needed "$BROWSER"
+    fi
+}
+
+# Étape 4 : Installation Complète (Optionnelle)
+install_full_suite() {
+    if [[ "$VM_SETTING" != "1" ]]; then
+        ui_info "Mode minimal sélectionné. Étape complète ignorée."
+        return 0
+    fi
+
+    PASSWORD=$(dialog --title "$TITLE" \
+        --passwordbox "\nMot de passe pour l'archive personnelle :" 9 58 \
+        3>&1 1>&2 2>&3) || { ui_error "Installation annulée."; exit 1; }
+
+    ui_info "Installation des paquets supplémentaires..."
     mapfile -t PKGS_EXTRA < <(grep -v '^[[:space:]]*$' packages-extra.txt)
     pacman -S --noconfirm --noprogressbar --needed --disable-download-timeout "${PKGS_EXTRA[@]}"
 
-    info "Installation de la toolchain Rust..."
+    ui_info "Installation de la toolchain Rust..."
     sudo -u "${USERNAME}" rustup toolchain install stable
 
-    # Configuration NFS / Fstab
+    log "Configuration NFS / Fstab..."
     mkdir -p /mnt/medias
-
     cat >> /etc/fstab <<-EOL
 
 	## Synology DS918
 	${NAS_IP}:/mnt/user/medias /mnt/medias nfs _netdev,noauto,x-systemd.automount,x-systemd.mount-timeout=10,timeo=14,x-systemd.idle-timeout=1min 0 0
 	EOL
 
-    # Gestion Archive Chiffrée
-    if command -v cryptyrust &> /dev/null; then
+    if command -v cryptyrust &>/dev/null; then
+        ui_info "Déchiffrement de l'archive personnelle..."
         cryptyrust --decrypt myEncryptedFile -p "${PASSWORD}" -o tmp.tar.gz
         tar -xf tmp.tar.gz -C "/home/${USERNAME}/"
         rm tmp.tar.gz
-
         chmod +x "/home/${USERNAME}/gitconfig.sh"
         sudo -u "${USERNAME}" "/home/${USERNAME}/gitconfig.sh"
     else
-        error "cryptyrust non trouvé, saut de l'étape de déchiffrement."
+        ui_msg "cryptyrust non trouvé — étape de déchiffrement ignorée."
     fi
 }
 
-# Étape 4 : Configuration Utilisateur
+# Étape 5 : Configuration Utilisateur
 configure_user_environment() {
-    info "Déploiement des configurations utilisateur..."
+    ui_info "Déploiement des configurations utilisateur..."
 
-    # Rsync direct avec le bon propriétaire
     rsync -a --chown="${USERNAME}:${USERNAME}" .config "/home/${USERNAME}/"
     rsync -a --chown="${USERNAME}:${USERNAME}" home_config/ "/home/${USERNAME}/"
 
-    # Thèmes et UI
     mkdir -p /usr/share/oh-my-zsh/themes/
     cp -r /usr/share/zsh-theme-powerlevel10k /usr/share/oh-my-zsh/themes/powerlevel10k
 
-    # Tweaks fichiers de conf
     sed -i 's|background=/usr/share/endeavouros/backgrounds/endeavouros-wallpaper.png|background=/usr/share/backgrounds/packarch/default.jpg|g' /etc/lightdm/slick-greeter.conf
     sed -i 's|Exec=geany %F|Exec=geany -i %F|g' /usr/share/applications/geany.desktop
 
     sed -i "s|antidote|${USERNAME}|g" "/home/${USERNAME}/.config/xfce4/xfconf/xfce-perchannel-xml/thunar.xml"
     sed -i "s|antidote|${USERNAME}|g" "/home/${USERNAME}/.config/gtk-3.0/bookmarks"
 
-    # Paramètres XFCE (tolérance aux erreurs si X n'est pas up)
-    sudo -u "${USERNAME}" env DISPLAY="${DISPLAY:-}" DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS:-}" xfce4-set-wallpaper /usr/share/backgrounds/packarch/default.jpg || true
-    sudo -u "${USERNAME}" env DISPLAY="${DISPLAY:-}" DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS:-}" xfconf-query --channel xsettings --property /Gtk/CursorThemeSize --set 24 || true
+    sudo -u "${USERNAME}" env DISPLAY="${DISPLAY:-}" DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS:-}" \
+        xfce4-set-wallpaper /usr/share/backgrounds/packarch/default.jpg || true
 
     systemctl enable lightdm.service
 
-    # Changement de Shell
     chsh -s "$(which zsh)" root
     chsh -s "$(which zsh)" "${USERNAME}"
 
-    info "Activation du TRIM hebdomadaire pour SSD..."
+    log "Activation du TRIM hebdomadaire pour SSD..."
     systemctl enable --now fstrim.timer
 }
 
-# Étape 5 : Nettoyage des menus
+# Étape 6 : Nettoyage des menus
 hide_useless_apps() {
-    info "Nettoyage des entrées de menu..."
+    ui_info "Nettoyage des entrées de menu..."
     local apps_dir="/usr/share/applications"
     local apps_to_hide=(
         "avahi-discover.desktop" "bssh.desktop" "bvnc.desktop" "xfce4-about.desktop"
@@ -177,43 +221,47 @@ hide_useless_apps() {
     done
 }
 
-# Étape 6 : Finalisation
+# Étape 7 : Finalisation
 finalize_installation() {
     if [ "$(systemd-detect-virt)" != "none" ]; then
-        info "Machine virtuelle détectée."
+        ui_msg "Machine virtuelle détectée."
     fi
 
-    info "Sauvegarde du log et nettoyage..."
-
+    log "Sauvegarde du log..."
     cp "$LOGFILE" "/home/${USERNAME}/$LOGFILE"
     chown "${USERNAME}:${USERNAME}" "/home/${USERNAME}/$LOGFILE"
-    info "Log copié dans /home/${USERNAME}/$LOGFILE"
 
-    info "Suppression du dossier repo..."
+    log "Suppression du dossier repo..."
     rm -rf "$SCRIPT_DIR"
 
-    info "Installation terminée !"
-    read -p "Voulez-vous redémarrer maintenant ? (O/n) " response
-    if [[ "$response" =~ ^[OoYy]$ ]] || [[ -z "$response" ]]; then
-        reboot
-    fi
+    dialog --title "$TITLE" \
+        --yesno "\nInstallation terminée !\n\nVoulez-vous redémarrer maintenant ?" 9 48 \
+        3>&1 1>&2 2>&3 && reboot || true
 }
 
 # ==========================================
-# FONCTION PRINCIPALE (MAIN)
+# MAIN
 # ==========================================
 
 main() {
     check_root
+    ensure_dialog
     cd "$SCRIPT_DIR"
+
+    # Choix interactifs avant de démarrer le log
     ask_install_mode
+    choose_browser
+
+    # Démarrage du log
+    exec > >(tee -i "$LOGFILE") 2>&1
+
     configure_system_files
     install_base_packages
+    install_browser
     install_full_suite
     configure_user_environment
     hide_useless_apps
     finalize_installation
 }
 
-# Exécution
 main
