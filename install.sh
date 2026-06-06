@@ -116,6 +116,7 @@ install_browser() {
     # EndeavourOS no-desktop installe firefox par défaut — le supprimer si un autre est choisi
     if [[ "$BROWSER" != "firefox" ]] && pacman -Qi firefox &>/dev/null; then
         ui_info "Suppression de Firefox (installé par EndeavourOS)..."
+        pacman -Qi firefox-i18n-fr &>/dev/null && pacman -R --noconfirm firefox-i18n-fr
         pacman -Rns --noconfirm firefox
     fi
 
