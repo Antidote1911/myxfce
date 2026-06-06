@@ -38,18 +38,29 @@ ensure_dialog() {
 # ==========================================
 
 TITLE="  Installation myxfce  "
+BOX_H=22
+BOX_W=78
 
 ui_info() {
-    dialog --title "$TITLE" --infobox "\n$1" 6 58
+    dialog --title "$TITLE" --infobox "\n$1" 6 60
     sleep 1
 }
 
 ui_msg() {
-    dialog --title "$TITLE" --msgbox "\n$1" 8 58
+    dialog --title "$TITLE" --msgbox "\n$1" 8 60
 }
 
 ui_error() {
-    dialog --title " Erreur " --msgbox "\n$1" 8 58
+    dialog --title " Erreur " --msgbox "\n$1" 8 60
+}
+
+# Exécute une commande et affiche sa sortie dans une boîte scrollable.
+# La fenêtre reste ouverte jusqu'à la fin de la commande.
+ui_run() {
+    local label="$1"
+    shift
+    "$@" 2>&1 | dialog --title "$TITLE" --progressbox "$label" $BOX_H $BOX_W
+    # Avec pipefail actif, si la commande échoue le pipeline échoue → ERR trap
 }
 
 log() {
@@ -65,7 +76,7 @@ trap 'ui_error "Erreur ligne $LINENO — installation interrompue."; exit 1' ERR
 # Étape 0 : Choix du mode
 ask_install_mode() {
     VM_SETTING=$(dialog --title "$TITLE" \
-        --menu "\nChoisissez le mode d'installation :" 12 58 2 \
+        --menu "\nChoisissez le mode d'installation :" 12 60 2 \
         "0" "Installation normale (minimale)" \
         "1" "Installation complète (Desktop Antidote)" \
         3>&1 1>&2 2>&3) || { ui_error "Installation annulée."; exit 1; }
@@ -74,7 +85,7 @@ ask_install_mode() {
 # Étape 0b : Choix du navigateur
 choose_browser() {
     BROWSER=$(dialog --title "$TITLE" \
-        --menu "\nChoisissez votre navigateur internet :" 14 58 5 \
+        --menu "\nChoisissez votre navigateur internet :" 14 60 5 \
         "firefox"    "Firefox" \
         "chromium"   "Chromium (Google sans compte)" \
         "vivaldi"    "Vivaldi" \
@@ -86,24 +97,28 @@ choose_browser() {
 # Étape 1 : Configuration Système
 configure_system_files() {
     ui_info "Déploiement des configurations système..."
-    log "Copie des fichiers système..."
-
     rsync -a --chown=root:root etc/ /etc/
     rsync -a --chown=root:root usr/ /usr/
     rsync -a --chown=root:root config_root/ /root/.config
     rm -f /etc/sudoers.d/10-installer
 
-    log "Suppression du thème GRUB EndeavourOS..."
     sed -i '/^GRUB_THEME=/d' /etc/default/grub
-    grub-mkconfig -o /boot/grub/grub.cfg
+    ui_run "Génération de la configuration GRUB..." \
+        grub-mkconfig -o /boot/grub/grub.cfg
 }
 
 # Étape 2 : Paquets de base
 install_base_packages() {
-    ui_info "Installation des paquets de base..."
     mapfile -t PKGS < <(grep -v '^[[:space:]]*$' packages-base.txt)
-    pacman -Sy
-    pacman -S --noconfirm --noprogressbar --needed --disable-download-timeout "${PKGS[@]}"
+
+    ui_run "Synchronisation des dépôts pacman..." \
+        pacman -Sy
+
+    ui_run "Téléchargement des paquets de base..." \
+        pacman -Sw --noconfirm --noprogressbar --needed --disable-download-timeout "${PKGS[@]}"
+
+    ui_run "Installation des paquets de base..." \
+        pacman -S --noconfirm --noprogressbar --needed --disable-download-timeout "${PKGS[@]}"
 }
 
 # Étape 3 : Navigateur
@@ -115,9 +130,10 @@ install_browser() {
 
     # EndeavourOS no-desktop installe firefox par défaut — le supprimer si un autre est choisi
     if [[ "$BROWSER" != "firefox" ]] && pacman -Qi firefox &>/dev/null; then
-        ui_info "Suppression de Firefox (installé par EndeavourOS)..."
-        pacman -Qi firefox-i18n-fr &>/dev/null && pacman -R --noconfirm firefox-i18n-fr
-        pacman -Rns --noconfirm firefox
+        pacman -Qi firefox-i18n-fr &>/dev/null && \
+            ui_run "Suppression de firefox-i18n-fr..." pacman -R --noconfirm firefox-i18n-fr
+        ui_run "Suppression de Firefox (installé par EndeavourOS)..." \
+            pacman -Rns --noconfirm firefox
     fi
 
     if [[ "$BROWSER" == "firefox" ]] && pacman -Qi firefox &>/dev/null; then
@@ -125,11 +141,16 @@ install_browser() {
         return 0
     fi
 
-    ui_info "Installation du navigateur : $BROWSER..."
     if [[ "$BROWSER" == "vivaldi" ]]; then
-        pacman -S --noconfirm --noprogressbar --needed vivaldi vivaldi-ffmpeg-codecs
+        ui_run "Téléchargement de Vivaldi..." \
+            pacman -Sw --noconfirm --noprogressbar --needed vivaldi vivaldi-ffmpeg-codecs
+        ui_run "Installation de Vivaldi..." \
+            pacman -S --noconfirm --noprogressbar --needed vivaldi vivaldi-ffmpeg-codecs
     else
-        pacman -S --noconfirm --noprogressbar --needed "$BROWSER"
+        ui_run "Téléchargement de $BROWSER..." \
+            pacman -Sw --noconfirm --noprogressbar --needed "$BROWSER"
+        ui_run "Installation de $BROWSER..." \
+            pacman -S --noconfirm --noprogressbar --needed "$BROWSER"
     fi
 }
 
@@ -141,15 +162,19 @@ install_full_suite() {
     fi
 
     PASSWORD=$(dialog --title "$TITLE" \
-        --passwordbox "\nMot de passe pour l'archive personnelle :" 9 58 \
+        --passwordbox "\nMot de passe pour l'archive personnelle :" 9 60 \
         3>&1 1>&2 2>&3) || { ui_error "Installation annulée."; exit 1; }
 
-    ui_info "Installation des paquets supplémentaires..."
     mapfile -t PKGS_EXTRA < <(grep -v '^[[:space:]]*$' packages-extra.txt)
-    pacman -S --noconfirm --noprogressbar --needed --disable-download-timeout "${PKGS_EXTRA[@]}"
 
-    ui_info "Installation de la toolchain Rust..."
-    sudo -u "${USERNAME}" rustup toolchain install stable
+    ui_run "Téléchargement des paquets supplémentaires..." \
+        pacman -Sw --noconfirm --noprogressbar --needed --disable-download-timeout "${PKGS_EXTRA[@]}"
+
+    ui_run "Installation des paquets supplémentaires..." \
+        pacman -S --noconfirm --noprogressbar --needed --disable-download-timeout "${PKGS_EXTRA[@]}"
+
+    ui_run "Installation de la toolchain Rust..." \
+        sudo -u "${USERNAME}" rustup toolchain install stable
 
     log "Configuration NFS / Fstab..."
     mkdir -p /mnt/medias
@@ -160,8 +185,8 @@ install_full_suite() {
 	EOL
 
     if command -v cryptyrust &>/dev/null; then
-        ui_info "Déchiffrement de l'archive personnelle..."
-        cryptyrust --decrypt myEncryptedFile -p "${PASSWORD}" -o tmp.tar.gz
+        ui_run "Déchiffrement de l'archive personnelle..." \
+            cryptyrust --decrypt myEncryptedFile -p "${PASSWORD}" -o tmp.tar.gz
         tar -xf tmp.tar.gz -C "/home/${USERNAME}/"
         rm tmp.tar.gz
         chmod +x "/home/${USERNAME}/gitconfig.sh"
@@ -236,7 +261,7 @@ finalize_installation() {
     rm -rf "$SCRIPT_DIR"
 
     dialog --title "$TITLE" \
-        --yesno "\nInstallation terminée !\n\nVoulez-vous redémarrer maintenant ?" 9 48 \
+        --yesno "\nInstallation terminée !\n\nVoulez-vous redémarrer maintenant ?" 9 50 \
         3>&1 1>&2 2>&3 && reboot || true
 }
 
