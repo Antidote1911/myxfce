@@ -67,6 +67,10 @@ configure_system_files() {
     rsync -a --chown=root:root usr/ /usr/
     rsync -a --chown=root:root config_root/ /root/.config
     rm -f /etc/sudoers.d/10-installer
+
+    info "Suppression du thème GRUB d'EndeavourOS..."
+    sed -i '/^GRUB_THEME=/d' /etc/default/grub
+    grub-mkconfig -o /boot/grub/grub.cfg
 }
 
 # Étape 2 : Paquets de base
