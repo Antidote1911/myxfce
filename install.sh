@@ -50,7 +50,7 @@ trap 'error "Erreur ligne $LINENO — installation interrompue."' ERR
 # Étape 0 : Choix de l'utilisateur
 ask_install_mode() {
     while true; do
-        info "Installation : Desktop Complet (1) ou Minimal (0) ?"
+        info "Installation : Desktop Antidote (1) ou Normal (0) ?"
         read -p "Votre choix [0/1] : " input_setting
         [[ "$input_setting" == "0" || "$input_setting" == "1" ]] && break
         error "Choix invalide. Entrez 0 ou 1."
