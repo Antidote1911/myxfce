@@ -59,7 +59,8 @@ ui_error() {
 ui_run() {
     local label="$1"
     shift
-    "$@" 2>&1 | dialog --title "$TITLE" --progressbox "$label" $BOX_H $BOX_W
+    "$@" 2>&1 | sed 's/\x1b\[[0-9;]*[mGKHJF]//g' \
+        | dialog --title "$TITLE" --progressbox "$label" $BOX_H $BOX_W
     # Avec pipefail actif, si la commande échoue le pipeline échoue → ERR trap
 }
 
@@ -277,6 +278,13 @@ main() {
     # Choix interactifs avant de démarrer le log
     ask_install_mode
     choose_browser
+
+    # Capturer la taille du terminal avant de rediriger stdout vers tee.
+    # Sans ça, dialog ne peut plus faire ioctl sur fd1 (qui devient un pipe)
+    # et repasse à 80x24 par défaut, ce qui décale la fenêtre en haut à gauche.
+    LINES=$(tput lines 2>/dev/null || echo 24)
+    COLUMNS=$(tput cols 2>/dev/null || echo 80)
+    export LINES COLUMNS
 
     # Démarrage du log
     exec > >(tee -i "$LOGFILE") 2>&1
