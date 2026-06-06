@@ -4,11 +4,12 @@
 # CONFIGURATION GLOBALE & LOGGING
 # ==========================================
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOGFILE="install_log_$(date +%F_%H-%M).txt"
 exec > >(tee -i "$LOGFILE") 2>&1
 
-# Arrêter le script à la moindre erreur
-set -e
+# Arrêter le script à la moindre erreur, variables non définies, et erreurs dans les pipes
+set -euo pipefail
 
 # Couleurs
 RED=$(tput setaf 1)
@@ -17,7 +18,7 @@ BLUE=$(tput setaf 4)
 RESET=$(tput sgr0)
 
 # Variables Globales
-USERNAME="$(logname)"
+USERNAME="${SUDO_USER:-$(logname)}"
 NAS_IP="192.168.1.65"
 VM_SETTING="0" # Valeur par défaut
 
@@ -40,22 +41,27 @@ check_root() {
     fi
 }
 
+trap 'error "Erreur ligne $LINENO — installation interrompue."' ERR
+
 # ==========================================
 # FONCTIONS D'ÉTAPE (BUSINESS LOGIC)
 # ==========================================
 
 # Étape 0 : Choix de l'utilisateur
 ask_install_mode() {
-    info "Installation : Desktop Complet (1) ou Minimal (0) ?"
-    read -p "Votre choix : " input_setting
-    # On met à jour la variable globale
+    while true; do
+        info "Installation : Desktop Complet (1) ou Minimal (0) ?"
+        read -p "Votre choix [0/1] : " input_setting
+        [[ "$input_setting" == "0" || "$input_setting" == "1" ]] && break
+        error "Choix invalide. Entrez 0 ou 1."
+    done
     VM_SETTING="$input_setting"
 }
 
 # Étape 1 : Configuration Système
 configure_system_files() {
     info "Déploiement des configurations système..."
-    
+
     # Copie avec préservation des droits
     rsync -a --chown=root:root etc/ /etc/
     rsync -a --chown=root:root usr/ /usr/
@@ -66,13 +72,13 @@ configure_system_files() {
 # Étape 2 : Paquets de base
 install_base_packages() {
     info "Installation des paquets de base..."
-    pacman -Syy
-    pacman -S --noconfirm --noprogressbar --needed --disable-download-timeout $(<packages-base.txt)
+    mapfile -t PKGS < <(grep -v '^[[:space:]]*$' packages-base.txt)
+    pacman -Sy
+    pacman -S --noconfirm --noprogressbar --needed --disable-download-timeout "${PKGS[@]}"
 }
 
 # Étape 3 : Installation Complète (Optionnelle)
 install_full_suite() {
-    # On vérifie la variable globale définie dans ask_install_mode
     if [[ "$VM_SETTING" != "1" ]]; then
         info "Mode minimal sélectionné. Passage de l'étape complète."
         return 0
@@ -80,34 +86,34 @@ install_full_suite() {
 
     info "Saisir le mot de passe pour l'archive personnelle :"
     read -p "Password: " PASSWORD
-    echo "" 
+    echo ""
 
     info "Installation des paquets supplémentaires..."
-    pacman -S --noconfirm --noprogressbar --needed --disable-download-timeout $(<packages-extra.txt)
-    
+    mapfile -t PKGS_EXTRA < <(grep -v '^[[:space:]]*$' packages-extra.txt)
+    pacman -S --noconfirm --noprogressbar --needed --disable-download-timeout "${PKGS_EXTRA[@]}"
+
     info "Installation de la toolchain Rust..."
     sudo -u "${USERNAME}" rustup toolchain install stable
-    
+
     # Configuration NFS / Fstab
     mkdir -p /mnt/medias
-    
+
     cat >> /etc/fstab <<-EOL
-	
+
 	## Synology DS918
 	${NAS_IP}:/mnt/user/medias /mnt/medias nfs _netdev,noauto,x-systemd.automount,x-systemd.mount-timeout=10,timeo=14,x-systemd.idle-timeout=1min 0 0
 	EOL
 
     # Gestion Archive Chiffrée
-    if command -v cryptyrust_cli &> /dev/null; then
-        # Note: PASSWORD est une variable locale à cette fonction ou au scope appelant
-        cryptyrust_cli -d myEncryptedFile -p "${PASSWORD}" -o tmp.tar.gz
+    if command -v cryptyrust &> /dev/null; then
+        cryptyrust --decrypt myEncryptedFile -p "${PASSWORD}" -o tmp.tar.gz
         tar -xf tmp.tar.gz -C "/home/${USERNAME}/"
-        rm tmp.tar.gz 
-        
+        rm tmp.tar.gz
+
         chmod +x "/home/${USERNAME}/gitconfig.sh"
         sudo -u "${USERNAME}" "/home/${USERNAME}/gitconfig.sh"
     else
-        error "cryptyrust_cli non trouvé, saut de l'étape de déchiffrement."
+        error "cryptyrust non trouvé, saut de l'étape de déchiffrement."
     fi
 }
 
@@ -127,21 +133,19 @@ configure_user_environment() {
     sed -i 's|background=/usr/share/endeavouros/backgrounds/endeavouros-wallpaper.png|background=/usr/share/backgrounds/packarch/default.jpg|g' /etc/lightdm/slick-greeter.conf
     sed -i 's|Exec=geany %F|Exec=geany -i %F|g' /usr/share/applications/geany.desktop
 
-    sed -i "s|antidote|${USERNAME}|g" /home/${USERNAME}/.config/xfce4/xfconf/xfce-perchannel-xml/thunar.xml
-    sed -i "s|antidote|${USERNAME}|g" /home/${USERNAME}/.config/gtk-3.0/bookmarks
+    sed -i "s|antidote|${USERNAME}|g" "/home/${USERNAME}/.config/xfce4/xfconf/xfce-perchannel-xml/thunar.xml"
+    sed -i "s|antidote|${USERNAME}|g" "/home/${USERNAME}/.config/gtk-3.0/bookmarks"
 
     # Paramètres XFCE (tolérance aux erreurs si X n'est pas up)
-    sudo -u "${USERNAME}" env DISPLAY="${DISPLAY}" DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS}" xfce4-set-wallpaper /usr/share/backgrounds/packarch/default.jpg || true
-    sudo -u "${USERNAME}" env DISPLAY="${DISPLAY}" DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS}" xfconf-query --channel xsettings --property /Gtk/CursorThemeSize --set 24 || true
+    sudo -u "${USERNAME}" env DISPLAY="${DISPLAY:-}" DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS:-}" xfce4-set-wallpaper /usr/share/backgrounds/packarch/default.jpg || true
+    sudo -u "${USERNAME}" env DISPLAY="${DISPLAY:-}" DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS:-}" xfconf-query --channel xsettings --property /Gtk/CursorThemeSize --set 24 || true
 
     systemctl enable lightdm.service
 
     # Changement de Shell
     chsh -s "$(which zsh)" root
     chsh -s "$(which zsh)" "${USERNAME}"
-    
-    # Vérifie si c'est un disque rotatif (0) ou SSD (non-0, souvent 0 sur SSD nvme/sata modernes mais check simple)
-    # Le plus simple est d'activer le timer, systemd est intelligent et ne fera rien si pas supporté
+
     info "Activation du TRIM hebdomadaire pour SSD..."
     systemctl enable --now fstrim.timer
 }
@@ -171,8 +175,7 @@ hide_useless_apps() {
 
 # Étape 6 : Finalisation
 finalize_installation() {
-    # Check VM (informatif)
-    if systemd-detect-virt | grep -vq "none"; then
+    if [ "$(systemd-detect-virt)" != "none" ]; then
         info "Machine virtuelle détectée."
     fi
 
@@ -183,11 +186,7 @@ finalize_installation() {
     info "Log copié dans /home/${USERNAME}/$LOGFILE"
 
     info "Suppression du dossier repo..."
-    # On remonte d'un niveau pour supprimer le dossier courant
-    cd ..
-    # Attention: on suppose que le dossier s'appelle 'myxfce'. 
-    # Pour être plus robuste, on pourrait supprimer le dossier $OLDPWD ou le dossier actuel avant le cd ..
-    rm -rf myxfce
+    rm -rf "$SCRIPT_DIR"
 
     info "Installation terminée !"
     read -p "Voulez-vous redémarrer maintenant ? (O/n) " response
@@ -202,6 +201,7 @@ finalize_installation() {
 
 main() {
     check_root
+    cd "$SCRIPT_DIR"
     ask_install_mode
     configure_system_files
     install_base_packages

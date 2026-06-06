@@ -41,8 +41,6 @@ zsh-theme-powerlevel10k-git
 packarch-icons-luna
 packarch-gtk-theme-kripton
 packarch-fonts
-smplayer
-smplayer-skins
-smplayer-themes
+nounours-player
 hunspell-fr
-
+bombicat
