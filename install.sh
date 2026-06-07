@@ -9,6 +9,9 @@ LOGFILE="install_log_$(date +%F_%H-%M).txt"
 
 set -euo pipefail
 
+# sudo supprime TERM — sans lui ncurses ne reconnaît pas les touches fléchées
+export TERM="${TERM:-linux}"
+
 # Variables Globales
 USERNAME="${SUDO_USER:-$(logname)}"
 NAS_IP="192.168.1.65"
