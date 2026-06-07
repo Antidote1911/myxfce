@@ -35,37 +35,64 @@ ensure_dialog() {
         echo "Installation de dialog..."
         pacman -S --noconfirm dialog
     fi
+    export DIALOGRC="$SCRIPT_DIR/dialogrc"
 }
 
 # ==========================================
 # HELPERS UI
 # ==========================================
 
-TITLE="  Installation myxfce  "
+TITLE="  myxfce  "
+BACKTITLE="  Installation myxfce — $(uname -n)  "
 BOX_H=22
 BOX_W=78
 
+# Wrapper autour de dialog — ajoute --colors et --backtitle sur chaque appel
+_d() {
+    /usr/bin/dialog --colors --backtitle "$BACKTITLE" --title "$TITLE" "$@"
+}
+
 ui_info() {
-    dialog --title "$TITLE" --infobox "\n$1" 6 60
+    _d --infobox "\n$1" 6 60
     sleep 1
 }
 
 ui_msg() {
-    dialog --title "$TITLE" --msgbox "\n$1" 8 60
+    _d --msgbox "\n$1" 8 60
 }
 
 ui_error() {
-    dialog --title " Erreur " --msgbox "\n$1" 8 60
+    _d --title "  \Z1Erreur\Zn  " --msgbox "\n\Z1$1\Zn" 8 60
 }
 
 # Exécute une commande et affiche sa sortie dans une boîte scrollable.
-# La fenêtre reste ouverte jusqu'à la fin de la commande.
+# Pour les commandes qui produisent une sortie (pacman, grub-mkconfig...).
 ui_run() {
     local label="$1"
     shift
     "$@" 2>&1 | sed 's/\x1b\[[0-9;]*[mGKHJF]//g' \
-        | dialog --title "$TITLE" --progressbox "$label" $BOX_H $BOX_W
+        | _d --progressbox "$label" $BOX_H $BOX_W
     # Avec pipefail actif, si la commande échoue le pipeline échoue → ERR trap
+}
+
+# Exécute une commande en arrière-plan avec une barre de progression animée.
+# Pour les commandes silencieuses (rsync, sed, systemctl...).
+ui_gauge() {
+    local label="$1"
+    shift
+    "$@" &>/dev/null &
+    local pid=$!
+    local pct=1
+    {
+        while kill -0 "$pid" 2>/dev/null; do
+            echo "$pct"
+            sleep 0.2
+            (( pct < 99 )) && (( pct++ )) || true
+        done
+        echo 100
+        sleep 0.3
+    } | _d --gauge "\n$label" 9 60 0
+    wait "$pid"
 }
 
 log() {
@@ -81,16 +108,14 @@ trap 'ui_error "Erreur ligne $LINENO — installation interrompue."; exit 1' ERR
 # ==========================================
 
 ask_install_mode() {
-    VM_SETTING=$(dialog --title "$TITLE" \
-        --menu "\nChoisissez le mode d'installation :" 12 60 2 \
+    VM_SETTING=$(_d --menu "\nChoisissez le mode d'installation :" 12 60 2 \
         "0" "Installation normale (minimale)" \
         "1" "Installation complète (Desktop Antidote)" \
         3>&1 1>&2 2>&3) || { ui_error "Installation annulée."; exit 1; }
 }
 
 choose_browser() {
-    BROWSER=$(dialog --title "$TITLE" \
-        --menu "\nChoisissez votre navigateur internet :" 14 60 5 \
+    BROWSER=$(_d --menu "\nChoisissez votre navigateur internet :" 14 60 5 \
         "firefox"    "Firefox" \
         "chromium"   "Chromium (Google sans compte)" \
         "vivaldi"    "Vivaldi" \
@@ -100,8 +125,7 @@ choose_browser() {
 }
 
 ask_password() {
-    PASSWORD=$(dialog --title "$TITLE" \
-        --passwordbox "\nMot de passe pour l'archive personnelle :" 9 60 \
+    PASSWORD=$(_d --passwordbox "\nMot de passe pour l'archive personnelle :" 9 60 \
         3>&1 1>&2 2>&3) || { ui_error "Installation annulée."; exit 1; }
 }
 
@@ -111,13 +135,15 @@ ask_password() {
 
 # Étape 1 : Configuration Système
 configure_system_files() {
-    ui_info "Déploiement des configurations système..."
-    rsync -a --chown=root:root etc/ /etc/
-    rsync -a --chown=root:root usr/ /usr/
-    rsync -a --chown=root:root config_root/ /root/.config
-    rm -f /etc/sudoers.d/10-installer
+    ui_gauge "Déploiement des configurations système..." \
+        bash -c "rsync -a --chown=root:root '$SCRIPT_DIR/etc/' /etc/ && \
+                 rsync -a --chown=root:root '$SCRIPT_DIR/usr/' /usr/ && \
+                 rsync -a --chown=root:root '$SCRIPT_DIR/config_root/' /root/.config && \
+                 rm -f /etc/sudoers.d/10-installer"
 
-    sed -i '/^GRUB_THEME=/d' /etc/default/grub
+    ui_gauge "Suppression du thème GRUB EndeavourOS..." \
+        sed -i '/^GRUB_THEME=/d' /etc/default/grub
+
     ui_run "Génération de la configuration GRUB..." \
         grub-mkconfig -o /boot/grub/grub.cfg
 }
@@ -143,7 +169,8 @@ install_browser() {
     # EndeavourOS no-desktop installe firefox par défaut — le supprimer si un autre est choisi
     if [[ "$BROWSER" != "firefox" ]] && pacman -Qi firefox &>/dev/null; then
         pacman -Qi firefox-i18n-fr &>/dev/null && \
-            ui_run "Suppression de firefox-i18n-fr..." pacman -R --noconfirm firefox-i18n-fr
+            ui_run "Suppression de firefox-i18n-fr..." \
+                pacman -R --noconfirm firefox-i18n-fr
         ui_run "Suppression de Firefox (installé par EndeavourOS)..." \
             pacman -Rns --noconfirm firefox
     fi
@@ -199,30 +226,28 @@ install_full_suite() {
 
 # Étape 5 : Configuration Utilisateur
 configure_user_environment() {
-    ui_info "Déploiement des configurations utilisateur..."
+    ui_gauge "Déploiement des configurations utilisateur..." \
+        bash -c "rsync -a --chown='${USERNAME}:${USERNAME}' '$SCRIPT_DIR/.config' '/home/${USERNAME}/' && \
+                 rsync -a --chown='${USERNAME}:${USERNAME}' '$SCRIPT_DIR/home_config/' '/home/${USERNAME}/'"
 
-    rsync -a --chown="${USERNAME}:${USERNAME}" .config "/home/${USERNAME}/"
-    rsync -a --chown="${USERNAME}:${USERNAME}" home_config/ "/home/${USERNAME}/"
+    ui_gauge "Installation des thèmes et polices..." \
+        bash -c "mkdir -p /usr/share/oh-my-zsh/themes/ && \
+                 cp -r /usr/share/zsh-theme-powerlevel10k /usr/share/oh-my-zsh/themes/powerlevel10k"
 
-    mkdir -p /usr/share/oh-my-zsh/themes/
-    cp -r /usr/share/zsh-theme-powerlevel10k /usr/share/oh-my-zsh/themes/powerlevel10k
-
-    sed -i 's|background=/usr/share/endeavouros/backgrounds/endeavouros-wallpaper.png|background=/usr/share/backgrounds/packarch/default.jpg|g' /etc/lightdm/slick-greeter.conf
-    sed -i 's|Exec=geany %F|Exec=geany -i %F|g' /usr/share/applications/geany.desktop
-
-    sed -i "s|antidote|${USERNAME}|g" "/home/${USERNAME}/.config/xfce4/xfconf/xfce-perchannel-xml/thunar.xml"
-    sed -i "s|antidote|${USERNAME}|g" "/home/${USERNAME}/.config/gtk-3.0/bookmarks"
+    ui_gauge "Ajustements de configuration..." \
+        bash -c "sed -i 's|background=/usr/share/endeavouros/backgrounds/endeavouros-wallpaper.png|background=/usr/share/backgrounds/packarch/default.jpg|g' /etc/lightdm/slick-greeter.conf && \
+                 sed -i 's|Exec=geany %F|Exec=geany -i %F|g' /usr/share/applications/geany.desktop && \
+                 sed -i 's|antidote|${USERNAME}|g' '/home/${USERNAME}/.config/xfce4/xfconf/xfce-perchannel-xml/thunar.xml' && \
+                 sed -i 's|antidote|${USERNAME}|g' '/home/${USERNAME}/.config/gtk-3.0/bookmarks'"
 
     sudo -u "${USERNAME}" env DISPLAY="${DISPLAY:-}" DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS:-}" \
         xfce4-set-wallpaper /usr/share/backgrounds/packarch/default.jpg || true
 
-    systemctl enable lightdm.service
+    ui_gauge "Activation des services système..." \
+        bash -c "systemctl enable lightdm.service && systemctl enable --now fstrim.timer"
 
-    chsh -s "$(which zsh)" root
-    chsh -s "$(which zsh)" "${USERNAME}"
-
-    log "Activation du TRIM hebdomadaire pour SSD..."
-    systemctl enable --now fstrim.timer
+    ui_gauge "Changement de shell en zsh..." \
+        bash -c "chsh -s '$(which zsh)' root && chsh -s '$(which zsh)' '${USERNAME}'"
 }
 
 # Étape 6 : Nettoyage des menus
@@ -238,12 +263,9 @@ hide_useless_apps() {
         "stoken-gui.desktop" "stoken-gui-small.desktop" "assistant.desktop" "qv4l2.desktop"
         "qdbusviewer.desktop" "mpv.desktop" "yad-settings.desktop"
     )
-
     for app in "${apps_to_hide[@]}"; do
-        if [[ -f "$apps_dir/$app" ]]; then
-            if ! grep -q "NoDisplay=true" "$apps_dir/$app"; then
-                echo "NoDisplay=true" >> "$apps_dir/$app"
-            fi
+        if [[ -f "$apps_dir/$app" ]] && ! grep -q "NoDisplay=true" "$apps_dir/$app"; then
+            echo "NoDisplay=true" >> "$apps_dir/$app"
         fi
     done
 }
@@ -260,10 +282,10 @@ finalize_installation() {
     # Restaurer stdout/stderr vers le terminal pour les dialogs interactifs finaux
     exec 1>/dev/tty 2>/dev/tty
 
-    [[ "$(systemd-detect-virt)" != "none" ]] && ui_msg "Machine virtuelle détectée."
+    [[ "$(systemd-detect-virt)" != "none" ]] && \
+        ui_msg "\Z3Machine virtuelle détectée.\Zn"
 
-    dialog --title "$TITLE" \
-        --yesno "\nInstallation terminée !\n\nVoulez-vous redémarrer maintenant ?" 9 50 \
+    _d --yesno "\n\Z2Installation terminée avec succès !\Zn\n\nVoulez-vous redémarrer maintenant ?" 9 50 \
         3>&1 1>&2 2>&3 && reboot || true
 }
 

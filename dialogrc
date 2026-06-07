@@ -1,0 +1,47 @@
+# myxfce installer — thème sombre vert
+use_shadow = ON
+use_colors = ON
+visit_items = ON
+
+screen_color        = (GREEN,BLACK,ON)
+shadow_color        = (BLACK,BLACK,ON)
+dialog_color        = (WHITE,BLACK,OFF)
+title_color         = (GREEN,BLACK,ON)
+border_color        = (GREEN,BLACK,ON)
+border2_color       = (GREEN,BLACK,ON)
+
+button_active_color        = (BLACK,GREEN,ON)
+button_inactive_color      = (WHITE,BLACK,OFF)
+button_key_active_color    = (BLACK,GREEN,ON)
+button_key_inactive_color  = (RED,BLACK,OFF)
+button_label_active_color  = (BLACK,GREEN,ON)
+button_label_inactive_color = (WHITE,BLACK,OFF)
+
+menubox_color       = (WHITE,BLACK,OFF)
+menubox_border_color = (GREEN,BLACK,ON)
+item_color          = (WHITE,BLACK,OFF)
+item_selected_color = (BLACK,GREEN,ON)
+tag_color           = (GREEN,BLACK,ON)
+tag_selected_color  = (BLACK,GREEN,ON)
+tag_key_color       = (YELLOW,BLACK,ON)
+tag_key_selected_color = (YELLOW,GREEN,ON)
+
+inputbox_color      = (WHITE,BLACK,OFF)
+inputbox_border_color = (GREEN,BLACK,ON)
+inputbox_border2_color = (GREEN,BLACK,ON)
+
+searchbox_color     = (WHITE,BLACK,OFF)
+searchbox_title_color = (GREEN,BLACK,ON)
+searchbox_border_color = (GREEN,BLACK,ON)
+
+check_color         = (WHITE,BLACK,OFF)
+check_selected_color = (BLACK,GREEN,ON)
+
+gauge_color         = (BLACK,GREEN,ON)
+position_indicator_color = (GREEN,BLACK,ON)
+uarrow_color        = (GREEN,BLACK,ON)
+darrow_color        = (GREEN,BLACK,ON)
+
+form_active_text_color = (BLACK,GREEN,ON)
+form_text_color     = (WHITE,BLACK,OFF)
+form_item_readonly_color = (GREEN,BLACK,OFF)
