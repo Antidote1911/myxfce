@@ -9,14 +9,15 @@ LOGFILE="install_log_$(date +%F_%H-%M).txt"
 
 set -euo pipefail
 
-# sudo supprime TERM — sans lui ncurses ne reconnaît pas les touches fléchées
-export TERM="${TERM:-linux}"
+# Forcer le type de terminal — sudo le supprime, ce qui casse ncurses/dialog
+export TERM=linux
 
 # Variables Globales
 USERNAME="${SUDO_USER:-$(logname)}"
 NAS_IP="192.168.1.65"
 VM_SETTING="0"
 BROWSER="none"
+PASSWORD=""
 
 # ==========================================
 # BOOTSTRAP
@@ -74,10 +75,11 @@ log() {
 trap 'ui_error "Erreur ligne $LINENO — installation interrompue."; exit 1' ERR
 
 # ==========================================
-# FONCTIONS D'ÉTAPE
+# QUESTIONS INTERACTIVES (avant exec/tee)
+# Toutes les saisies utilisateur doivent se faire ici — après le démarrage
+# du log (exec > tee), le terminal n'est plus utilisable par dialog.
 # ==========================================
 
-# Étape 0 : Choix du mode
 ask_install_mode() {
     VM_SETTING=$(dialog --title "$TITLE" \
         --menu "\nChoisissez le mode d'installation :" 12 60 2 \
@@ -86,7 +88,6 @@ ask_install_mode() {
         3>&1 1>&2 2>&3) || { ui_error "Installation annulée."; exit 1; }
 }
 
-# Étape 0b : Choix du navigateur
 choose_browser() {
     BROWSER=$(dialog --title "$TITLE" \
         --menu "\nChoisissez votre navigateur internet :" 14 60 5 \
@@ -97,6 +98,16 @@ choose_browser() {
         "none"       "Aucun navigateur" \
         3>&1 1>&2 2>&3) || { ui_error "Installation annulée."; exit 1; }
 }
+
+ask_password() {
+    PASSWORD=$(dialog --title "$TITLE" \
+        --passwordbox "\nMot de passe pour l'archive personnelle :" 9 60 \
+        3>&1 1>&2 2>&3) || { ui_error "Installation annulée."; exit 1; }
+}
+
+# ==========================================
+# FONCTIONS D'ÉTAPE
+# ==========================================
 
 # Étape 1 : Configuration Système
 configure_system_files() {
@@ -158,10 +169,6 @@ install_full_suite() {
         return 0
     fi
 
-    PASSWORD=$(dialog --title "$TITLE" \
-        --passwordbox "\nMot de passe pour l'archive personnelle :" 9 60 \
-        3>&1 1>&2 2>&3) || { ui_error "Installation annulée."; exit 1; }
-
     mapfile -t PKGS_EXTRA < <(grep -v '^[[:space:]]*$' packages-extra.txt)
 
     ui_run "Téléchargement et installation des paquets supplémentaires..." \
@@ -186,7 +193,7 @@ install_full_suite() {
         chmod +x "/home/${USERNAME}/gitconfig.sh"
         sudo -u "${USERNAME}" "/home/${USERNAME}/gitconfig.sh"
     else
-        ui_msg "cryptyrust non trouvé — étape de déchiffrement ignorée."
+        ui_info "cryptyrust non trouvé — étape de déchiffrement ignorée."
     fi
 }
 
@@ -243,16 +250,17 @@ hide_useless_apps() {
 
 # Étape 7 : Finalisation
 finalize_installation() {
-    if [ "$(systemd-detect-virt)" != "none" ]; then
-        ui_msg "Machine virtuelle détectée."
-    fi
-
     log "Sauvegarde du log..."
     cp "$LOGFILE" "/home/${USERNAME}/$LOGFILE"
     chown "${USERNAME}:${USERNAME}" "/home/${USERNAME}/$LOGFILE"
 
     log "Suppression du dossier repo..."
     rm -rf "$SCRIPT_DIR"
+
+    # Restaurer stdout/stderr vers le terminal pour les dialogs interactifs finaux
+    exec 1>/dev/tty 2>/dev/tty
+
+    [[ "$(systemd-detect-virt)" != "none" ]] && ui_msg "Machine virtuelle détectée."
 
     dialog --title "$TITLE" \
         --yesno "\nInstallation terminée !\n\nVoulez-vous redémarrer maintenant ?" 9 50 \
@@ -268,18 +276,17 @@ main() {
     ensure_dialog
     cd "$SCRIPT_DIR"
 
-    # Choix interactifs avant de démarrer le log
+    # --- Toutes les questions interactives ici, avant exec/tee ---
     ask_install_mode
     choose_browser
+    [[ "$VM_SETTING" == "1" ]] && ask_password
 
-    # Capturer la taille du terminal avant de rediriger stdout vers tee.
-    # Sans ça, dialog ne peut plus faire ioctl sur fd1 (qui devient un pipe)
-    # et repasse à 80x24 par défaut, ce qui décale la fenêtre en haut à gauche.
+    # Capturer la taille du terminal avant de rediriger stdout vers tee
     LINES=$(tput lines 2>/dev/null || echo 24)
     COLUMNS=$(tput cols 2>/dev/null || echo 80)
     export LINES COLUMNS
 
-    # Démarrage du log
+    # Démarrage du log — après ce point, ne plus appeler de dialog interactif
     exec > >(tee -i "$LOGFILE") 2>&1
 
     configure_system_files
