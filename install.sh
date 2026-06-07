@@ -115,11 +115,8 @@ install_base_packages() {
     ui_run "Synchronisation des dépôts pacman..." \
         pacman -Sy
 
-    ui_run "Téléchargement des paquets de base..." \
-        pacman -Sw --noconfirm --noprogressbar --needed --disable-download-timeout "${PKGS[@]}"
-
-    ui_run "Installation des paquets de base..." \
-        pacman -S --noconfirm --noprogressbar --needed --disable-download-timeout "${PKGS[@]}"
+    ui_run "Téléchargement et installation des paquets de base..." \
+        pacman -S --noconfirm --needed --disable-download-timeout "${PKGS[@]}"
 }
 
 # Étape 3 : Navigateur
@@ -143,15 +140,11 @@ install_browser() {
     fi
 
     if [[ "$BROWSER" == "vivaldi" ]]; then
-        ui_run "Téléchargement de Vivaldi..." \
-            pacman -Sw --noconfirm --noprogressbar --needed vivaldi vivaldi-ffmpeg-codecs
-        ui_run "Installation de Vivaldi..." \
-            pacman -S --noconfirm --noprogressbar --needed vivaldi vivaldi-ffmpeg-codecs
+        ui_run "Téléchargement et installation de Vivaldi..." \
+            pacman -S --noconfirm --needed vivaldi vivaldi-ffmpeg-codecs
     else
-        ui_run "Téléchargement de $BROWSER..." \
-            pacman -Sw --noconfirm --noprogressbar --needed "$BROWSER"
-        ui_run "Installation de $BROWSER..." \
-            pacman -S --noconfirm --noprogressbar --needed "$BROWSER"
+        ui_run "Téléchargement et installation de $BROWSER..." \
+            pacman -S --noconfirm --needed "$BROWSER"
     fi
 }
 
@@ -168,11 +161,8 @@ install_full_suite() {
 
     mapfile -t PKGS_EXTRA < <(grep -v '^[[:space:]]*$' packages-extra.txt)
 
-    ui_run "Téléchargement des paquets supplémentaires..." \
-        pacman -Sw --noconfirm --noprogressbar --needed --disable-download-timeout "${PKGS_EXTRA[@]}"
-
-    ui_run "Installation des paquets supplémentaires..." \
-        pacman -S --noconfirm --noprogressbar --needed --disable-download-timeout "${PKGS_EXTRA[@]}"
+    ui_run "Téléchargement et installation des paquets supplémentaires..." \
+        pacman -S --noconfirm --needed --disable-download-timeout "${PKGS_EXTRA[@]}"
 
     ui_run "Installation de la toolchain Rust..." \
         sudo -u "${USERNAME}" rustup toolchain install stable
